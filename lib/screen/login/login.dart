@@ -12,7 +12,6 @@ import 'package:v_users/models/cars_model.dart';
 import 'package:v_users/models/user_model.dart';
 import 'package:v_users/service/database.dart';
 
-
 final kFirebaseAnalytics = FirebaseAnalytics();
 
 // ต้องใส่ sha 1 ด้วยใน firebase โดย ทำการคอมเม็น android.enableJetifier=true ออก เเล้วถึงจะห้า shi 1 เห็นเเล้วเมือจะรันก็มาเอาคอมเม็นออกจาก android.enableJetifier=trueไม่งั้นมันจะรันไม่ออก
@@ -42,16 +41,7 @@ class _LoginState extends State<Login> {
         builder: (ctx) => Scaffold(
           appBar: AppBar(
             title: const Text('user profile'),
-            actions: [
-              IconButton(
-                icon: const Icon(Icons.exit_to_app),
-                onPressed: () {
-                  // logout firebase
-                  _auth.signOut();
-                  
-                },
-              ),
-            ],
+            
           ),
           body: ListView(
             children: <Widget>[

@@ -1,3 +1,5 @@
+import 'package:firebase_auth/firebase_auth.dart';
+
 import '../flutter_flow/flutter_flow_theme.dart';
 import '../flutter_flow/flutter_flow_util.dart';
 import 'package:flutter/material.dart';
@@ -30,6 +32,12 @@ class _HomePageState extends State<HomePage> {
         ),
         actions: [],
         centerTitle: true,
+        leading: IconButton(
+              icon: const Icon(Icons.login_outlined),
+              onPressed: () {
+                FirebaseAuth.instance.signOut();
+              },
+            ),
         elevation: 4,
       ),
       body: SafeArea(
