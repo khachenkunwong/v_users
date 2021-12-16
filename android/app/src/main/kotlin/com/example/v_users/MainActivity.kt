@@ -1,4 +1,4 @@
-package com.dev.v_users
+package com.devs.v_users
 
 import io.flutter.embedding.android.FlutterActivity
 
