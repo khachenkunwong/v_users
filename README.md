@@ -14,7 +14,7 @@
 ### Login
 [![image.png](https://i.postimg.cc/xCGTbr8Q/image.png)](https://postimg.cc/zbB19cT2)
 - ระบบ
-:heavy_check_mark: ล็อกอิน google
-:warning: ล็อกอิน facebook
-:warning: ล็อกอิน email หรือเเบบพิมพ์ลงไปในชื่อผู้ใช้ และ รหัสผ่าน
+- :heavy_check_mark: ล็อกอิน google
+- :warning: ล็อกอิน facebook
+- :warning: ล็อกอิน email หรือเเบบพิมพ์ลงไปในชื่อผู้ใช้ และ รหัสผ่าน
 
