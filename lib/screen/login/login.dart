@@ -23,78 +23,27 @@ class Login extends StatefulWidget {
 }
 
 class _LoginState extends State<Login> {
+  //บันทัดที่ 27-28 เก็บค่าที่รับมาจากที่ผู้ใช้กรอก email และ password
   TextEditingController emailController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
+  //บันทัดที่ 31, 30, 48 เป็นการเรียกดูข้อมูลของผู้ใช้ใน Authentication ไม่ใช้ใน Cloud Firestore
+  // เวลาใช้ เช่น _user?.uid เพื่อดู id ผู้ใช้งาน เเต่ถ้ายังไม่ได้เข้าสู่ระบบก็จะไม่มีค่านี้
   final _auth = firebase_auth.FirebaseAuth.instance;
-  Database db = Database.instance;
   firebase_auth.User? _user;
-  // If this._busy=true, the buttons are not clickable. This is to avoid
-  // clicking buttons while a previous onTap function is not finished.
-  // ถ้า this._busy=true ปุ่มต่างๆ จะไม่สามารถคลิกได้ นี่คือการหลีกเลี่ยง
-  // คลิกปุ่มในขณะที่ฟังก์ชัน onTap ก่อนหน้ายังไม่เสร็จสิ้น
+  // เรียกใช้เพื่อติดต่อกับ Cloud Firestore เพี่อ get set updata delete
+  Database db = Database.instance;
+  // กำหนดเป็น false เพื่อทำให้ปุ่มlogin in google สามารถกดได้
   bool _busy = false;
+  // เอาใช้เพื่อ login ผ่าน google
   var user;
-  // แสดงโปรไฟล์ของผู้ใช้ในหน้าจอใหม่
-  void _showUserProfilePage(firebase_auth.User user) {
-    Navigator.of(context).push(
-      MaterialPageRoute(
-        builder: (ctx) => Scaffold(
-          appBar: AppBar(
-            title: const Text('user profile'),
-            
-          ),
-          body: ListView(
-            children: <Widget>[
-              ListTile(title: Text('User: $user')),
-              ListTile(title: Text('User id: ${user.uid}')), // id
-              ListTile(title: Text('Display name: ${user.displayName}')),
-              ListTile(
-                  title: Text(
-                      'Anonymous: ${user.isAnonymous}')), // เช็กว่าเป็น Anonymous
-              ListTile(title: Text('Email: ${user.email}')), // email
-              ListTile(
-                title: const Text('Profile photo: '),
-                trailing: user.photoURL != null
-                    ? CircleAvatar(
-                        //ภาพ Profile
-                        backgroundImage: NetworkImage(user.photoURL!),
-                      )
-                    : CircleAvatar(
-                        //ทำภาพเป็น ตัวอักษร
-                        child: Text(user.displayName![0]),
-                      ),
-              ),
-              ListTile(
-                title: Text(
-                    'Last sign in: ${user.metadata.lastSignInTime}'), //เข้าสู่ระบบครั้งล่าสุด
-              ),
-              ListTile(
-                title: Text(
-                    'Creation time: ${user.metadata.creationTime}'), //เวลาสร้างเเอ็กเคา
-              ),
-              ListTile(
-                  title: Text(
-                      'ProviderData: ${user.providerData}')), //ข้อมูลผู้ให้บริการ
-              ElevatedButton(
-                  onPressed: () {
-                    // Navigator.push(
-                    //   context,
-                    //   MaterialPageRoute(
-                    //       builder: (context) => ProductListGoogleLogin()),
-                    // );
-                  },
-                  child: const Text('ถัดไป'))
-            ],
-          ),
-        ),
-      ),
-    );
-  }
 
   @override
+  // initState() กำหนดให้ทำงานหรือเรียกใช้งานตัวไหนตอนเปิดหน้านี้มาครังเเรก
   void initState() {
     super.initState();
+    // บันทัดที่ 46, 53  เพื่อเอาไว้เช็คว่ามีการทำงานผ่าน initState หรือไม่
     print('firebase == user');
+    // อธิบายไว้ที่บันทัดทที่ 29
     _user = _auth.currentUser;
     // _auth.authStateChanges().listen((firebase_auth.User? usr) {
     //   _user = usr;
@@ -105,31 +54,13 @@ class _LoginState extends State<Login> {
 
   @override
   Widget build(BuildContext context) {
-    //Widget Button google login
-    final googleLoginBtn = ElevatedButton(
-      style: ElevatedButton.styleFrom(
-        primary: Colors.blueAccent,
-      ),
-      onPressed: _busy
-          ? null
-          : () async {
-              setState(() => _busy = true);
-
-              final user = await _googleSignIn();
-
-              // setState(() => _busy = false);
-              if (mounted) {
-                setState(() => _busy = false);
-                print('กำลังทำงาน = $mounted');
-              }
-              print('_busy = $mounted');
-            },
-      child: const Text('Log in with Google'),
-    );
+    //ปุ่ม google login
 
     return Scaffold(
       backgroundColor: Colors.grey[200],
       body: SafeArea(
+        // ทำให้เลื่อนหน้าได้เเต้องระวังเมื่อใช้ร่วมกับ ListView จะใช้ร่วมกันไม่ได้ เช่น
+        // SingleChildScrollView เเล้วเรียก ListView ในข้าง มันจะ error
         child: SingleChildScrollView(
           child: Column(
             mainAxisSize: MainAxisSize.max,
@@ -140,8 +71,11 @@ class _LoginState extends State<Login> {
                 padding: EdgeInsets.fromLTRB(0, 40, 0, 0),
                 child: Image.asset(
                   'assets/images/vgistic.png',
+                  // ความกว้างของภาพ 80% ของหน้าจอ
                   width: MediaQuery.of(context).size.width * 0.8,
+                  // ความยาวของภาพ 20% ของหน้าจอ
                   height: MediaQuery.of(context).size.height * 0.2,
+                  // cover ภาพเต็มขนาดความกว้างความยาวที่กำหนด
                   fit: BoxFit.cover,
                 ),
               ),
@@ -171,11 +105,15 @@ class _LoginState extends State<Login> {
                       ],
                     ),
                     Expanded(
+                      // ที่เอากรอกข้อมูลผู้ใข้งาน
                       child: TextFormField(
+                        // ในตัวที่กรอกมาเก็บใน emailController
                         controller: emailController,
+                        // false กำหนดให้สามารถมองเห็นข้อมูลที่พิมพ์ได้
                         obscureText: false,
                         decoration: InputDecoration(
                           labelText: 'ชื่อผู้ใช้',
+                          // กำหนด type ของ font
                           labelStyle: GoogleFonts.getFont(
                             'Poppins',
                             color: Color(0xFF616161),
@@ -254,8 +192,11 @@ class _LoginState extends State<Login> {
                       ],
                     ),
                     Expanded(
+                      // ที่พิมพ์รหัสผ่าน
                       child: TextFormField(
+                        // นำ password มาเก็บใน passwordController
                         controller: passwordController,
+                        // true กำหนดให้ไม่สามารถมองเห็นข้อมูลที่พิมพ์ได้
                         obscureText: true,
                         decoration: InputDecoration(
                           labelText: 'รหัสผ่าน',
@@ -305,12 +246,14 @@ class _LoginState extends State<Login> {
                   ],
                 ),
               ),
+              // ปุ่มเข้าลืมรหัสผ่าน
               Row(
                 mainAxisSize: MainAxisSize.max,
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
                   Padding(
                     padding: EdgeInsets.fromLTRB(0, 10, 10, 20),
+                    // TextButton ปุ่มเข้าลืมรหัสผ่าน
                     child: TextButton(
                       onPressed: () {
                         // Get.toNamed(Routes.SEARCH_PASSWORD);
@@ -320,6 +263,7 @@ class _LoginState extends State<Login> {
                         //       builder: (context) => ForgotPasswordView()),
                         // );
                       },
+                      // ข้อความในปุ่ม
                       child: Text(
                         'ลืมรหัสผ่าน',
                         style: GoogleFonts.getFont(
@@ -335,13 +279,16 @@ class _LoginState extends State<Login> {
               ),
               Padding(
                 padding: EdgeInsets.fromLTRB(0, 5, 0, 0),
+                // SizedBox ใช้กำหนดขนาดของปุ่ม
                 child: SizedBox(
                   height: 47,
                   width: 325,
                   child: ElevatedButton(
+                    // เเต่งปุ่ม
                     style: ElevatedButton.styleFrom(
                       primary: Color(0xFF0AC258),
                     ),
+                    // ข้อความในปุ่ม
                     child: Text(
                       "เข้าสู่ระบบ",
                       style: GoogleFonts.getFont(
@@ -351,6 +298,7 @@ class _LoginState extends State<Login> {
                         fontSize: 20,
                       ),
                     ),
+                    // เมื่อคลิกปุ่มเกิดอะไรขึ้น
                     onPressed: () {
                       // final String email = emailController.text.trim();
                       // final String password = passwordController.text.trim();
@@ -390,21 +338,31 @@ class _LoginState extends State<Login> {
                             height: 47,
                             width: 325,
                             child: ElevatedButton.icon(
+                              // เมื่อกดปุ่มไปเเล้วถ้ายังทำงานไม่เสร็จจะให้แสดงสีเทาเพื่อป้องกันกันการกดซ้ำ
                               onPressed: _busy
+                                  // กำหนดให้กดไม่ได้จนกว่าจะทำงานเสร็จ
                                   ? null
+                                  // เมื่อยังไม่ได้กด
                                   : () async {
+                                      // ทำการเปลี่ยนค่าเป็น true เพื่อทำให้กดไม่ได้ เเละทำการ รีหน้าใหม่เพื่ออัพเดทหน้าจอ
                                       setState(() => _busy = true);
-
+                                      // ทำการเรียกใช้งานฟังก์ชั่น _googleSignIn() เพื่อเข้าสู่ระบบผ่าน google
+                                      // await รอให้ login เสร็จก่อนเเล้วค่อยไปทำงานบันทัดต่อไป
                                       final user = await _googleSignIn();
 
                                       // setState(() => _busy = false);
+                                      // mounted เป็นการป้องการ การ error ว่าไม่เคลียร์หน่วยความจำเมื่อไปหน้าอื่นหรือปิดหน้านี้
                                       if (mounted) {
+                                        // ทำการเปลี่ยนค่าเป็น false เพื่อทำให้กดได้ และรีหน้าใหม่เพื่ออัพเดทหน้าจอ
                                         setState(() => _busy = false);
+                                        // เช็คว่าค่า mounted คือค่าอะไรในตอนนี้(เอาไว้เช็คดูลำดับการทำงานเฉยๆว่าทำงานถึงไหนเเล้ว)
                                         print('กำลังทำงาน = $mounted');
                                       }
                                       print('_busy = $mounted');
                                     },
+                              // ตั้งค่าปุ่มเช่น สี ตัวอักษร สีตัวอักษร สีพื้นหลัง สีพื้นหลังตัวอักษร
                               style: ElevatedButton.styleFrom(
+                                // กำหนดสีปุ่ม
                                 primary: Colors.white,
                                 elevation: 4,
                                 side: const BorderSide(
@@ -454,6 +412,7 @@ class _LoginState extends State<Login> {
                   ),
                 ),
               ),
+              // ปุ่มเอาไว้กดลงทะเบียน
               Row(
                 mainAxisSize: MainAxisSize.max,
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -472,6 +431,7 @@ class _LoginState extends State<Login> {
                   ),
                   Padding(
                     padding: EdgeInsets.fromLTRB(10, 0, 0, 0),
+                    // TextButton ปุ่มเอาไว้กดลงทะเบียน
                     child: TextButton(
                       onPressed: () {
                         //await Get.toNamed(Routes.REGISTER);
@@ -503,6 +463,8 @@ class _LoginState extends State<Login> {
 
   // Sign in with Google.
   Future<firebase_auth.User?> _googleSignIn() async {
+    // try  ใช้เพื่อป้องกันเวลากดย้อนกลับตอนกดปุ่มไปเเล้วไม่เลือก gmail
+    // แล้วมัน Error แต่ก็ต้องเข้าไปแก้ในโค้ด flutter อยู่ดีอันนี้กำป้องกันไว
     try {
       final curUser = _user ?? _auth.currentUser;
 
@@ -519,12 +481,12 @@ class _LoginState extends State<Login> {
       final user = (await _auth.signInWithCredential(credential)).user;
       print('user = 1111111 $user');
       print('กำลังเข้า store');
-      // นำข้อมูลใน firestore มาเเสดง
+      // นำข้อมูลใน collection cars ของ firebase มาเเสดง กำหนด doc เป็น id ผู้ใช้
       final userData = await FirebaseFirestore.instance
           .collection('cars')
           .doc(user!.uid)
           .get();
-
+      // เอาไว้เซ็คดูว่าผู้ใช้ออนอยู่หรือไหมตัวนี้ทำมาเพื่อเอาเป็นตัวอย่างเอาไปประยุคใช้งาน
       FirebaseAuth.instance.userChanges().listen((User? user) {
         if (user == null) {
           print('User is currently signed out!');
@@ -532,6 +494,7 @@ class _LoginState extends State<Login> {
           print('User is signed in!');
         }
       });
+      // เอาไว้ป้องกันการเขียนทับข้อมูลที่มีอยู่เเล้ว
       if (userData.data() == null) {
         await db.setCars(
           //ใช้ setProduct เพื่อเพิ่มหรือแก้ไขเอกสารไปยังฐานข้อมูล Cloud Firestore
@@ -568,8 +531,10 @@ class _LoginState extends State<Login> {
     } catch (err) {
       print(err);
     }
+    // ไม่รู้
     kFirebaseAnalytics.logLogin();
     if (mounted) {
+      // ไม่รู้
       setState(() => _user = user);
       print('mouted user = $mounted');
     }

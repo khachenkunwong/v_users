@@ -22,6 +22,7 @@ class _HomePageState extends State<HomePage> {
       key: scaffoldKey,
       appBar: AppBar(
         backgroundColor: Color(0xFF0AC258),
+        // true กำหนดให้มีปุ่มย้อนกลับ
         automaticallyImplyLeading: true,
         title: Text(
           'จัดส่งที่ ตำบลเเม่กา',
@@ -35,6 +36,7 @@ class _HomePageState extends State<HomePage> {
         leading: IconButton(
               icon: const Icon(Icons.login_outlined),
               onPressed: () {
+                // logout
                 FirebaseAuth.instance.signOut();
               },
             ),

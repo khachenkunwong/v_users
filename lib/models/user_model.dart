@@ -40,6 +40,8 @@ class UsersModel {
         phone: phone,
         email: email,address: address);
   }
+  // เอามาเเปลงเป็น <String, dynamic> เพื่อชื่อกับ firebase ได้เพราะ firebase กำหนด typeให้เป็นอย่างนี้
+  // อย่างอื้นไม่ได้เช่น <String, String> ก็จะไม่สามารถเชื่อมได้
   Map<String, dynamic> toMap() {
     return {
       'id': id,
