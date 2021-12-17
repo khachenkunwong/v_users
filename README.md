@@ -17,5 +17,5 @@
 - :heavy_check_mark: ล็อกอิน google
 - :warning: ล็อกอิน facebook
 - :warning: ล็อกอิน email หรือเเบบพิมพ์ลงไปในชื่อผู้ใช้ และ รหัสผ่าน
-    - :warnign: ลืมรหัสผ่าน
+  -  :warnign: ลืมรหัสผ่าน
 
