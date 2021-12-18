@@ -102,7 +102,7 @@ class Database {
     _user = _auth.currentUser;
     final reference = FirebaseFirestore.instance
         .collection('carspublic')
-        .doc('${_user?.uid}');
+        .doc('${cars?.id}');
     // doc('users/SGxI1a2Zq9MKsTFvlGYzffd9aBn2/novel')
     try {
       await reference.set(cars!.toMap());
@@ -175,6 +175,18 @@ class Database {
     return snapshots.map((snapshot) {
       return snapshot.docs.map((doc) {
         return UsersModel.fromMap(doc.data());
+      }).toList();
+    });
+  }
+  Stream<List<CarsModel>> getCarsPublic() {
+    final reference = FirebaseFirestore.instance.collection('carspublic');
+    //เรียงเอกสารจากมากไปน้อย โดยใช้ ฟิลด์ id
+    final snapshots = reference.snapshots();
+    //QuerySnapshot<Map<String, dynamic>> snapshot
+    //QuerySnapshot<Object?> snapshot
+    return snapshots.map((snapshot) {
+      return snapshot.docs.map((doc) {
+        return CarsModel.fromMap(doc.data());
       }).toList();
     });
   }
