@@ -54,8 +54,6 @@ class _LoginState extends State<Login> {
 
   @override
   Widget build(BuildContext context) {
-    //ปุ่ม google login
-
     return Scaffold(
       backgroundColor: Colors.grey[200],
       body: SafeArea(
