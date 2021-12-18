@@ -32,7 +32,7 @@
   - :warning: Authentication ระบบยืนยันตัวต้นว่า Gmail นี้มีจริง
   - :warning: Cloud Firestore เก็บข้อมูลผู้ใช้ที่สมัครไว้
   - :warning: ลืมรหัสผ่าน
-- :heavy_check_mark: เมื่อไม่เลือก บัญชี Gmail ที่จะล็อกอินแล้วกดย้อนกลับ (update 18/12/64) อาร์ม
+- :heavy_check_mark: เมื่อไม่เลือก บัญชี Gmail ที่จะล็อกอินแล้วกดย้อนกลับ *(update 18/12/64) อาร์ม*
 
 ### หน้าผู้ใช้เลือกรถ
 
