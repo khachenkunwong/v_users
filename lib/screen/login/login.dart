@@ -436,7 +436,8 @@ class _LoginState extends State<Login> {
                                       setState(() => _busy = true);
                                       // // ทำการเรียกใช้งานฟังก์ชั่น _googleSignIn() เพื่อเข้าสู่ระบบผ่าน google
                                       // // await รอให้ login เสร็จก่อนเเล้วค่อยไปทำงานบันทัดต่อไป
-                                      final userfacebook = await _loginWithFacebook();
+                                      final userfacebook =
+                                          await _loginWithFacebook();
 
                                       // // setState(() => _busy = false);
                                       // // mounted เป็นการป้องการ การ error ว่าไม่เคลียร์หน่วยความจำเมื่อไปหน้าอื่นหรือปิดหน้านี้
@@ -584,23 +585,22 @@ class _LoginState extends State<Login> {
       });
       // เอาไว้ป้องกันการเขียนทับข้อมูลที่มีอยู่เเล้ว
       if (userData.data() == null) {
-        await db.setCars(
+        await db.setUsers(
           //ใช้ setProduct เพื่อเพิ่มหรือแก้ไขเอกสารไปยังฐานข้อมูล Cloud Firestore
-          cars: CarsModel(
+          user: UsersModel(
             id: user.uid,
             userName: '${user.displayName}',
             state: false,
-            statejob: false,
             images: user.photoURL!,
-            cartype: '',
             location: '',
             time: '',
-            cost: '',
             phone: user.phoneNumber ?? '',
             email: user.email ?? '',
+            address: '',
           ),
         );
       }
+      
       // ต้องเอาออกเมื่อใช้เสร็จ
       // await db.setUsersPublic(
       //     //ใช้ setProduct เพื่อเพิ่มหรือแก้ไขเอกสารไปยังฐานข้อมูล Cloud Firestore
@@ -632,6 +632,8 @@ class _LoginState extends State<Login> {
 
   Future _loginWithFacebook() async {
     try {
+      
+      
       final facebookLoginResult = await FacebookAuth.instance.login();
       final userData = await FacebookAuth.instance.getUserData();
       final facebookAuthCredential = FacebookAuthProvider.credential(
@@ -639,10 +641,31 @@ class _LoginState extends State<Login> {
       );
       await FirebaseAuth.instance.signInWithCredential(facebookAuthCredential);
       print('userData = ${userData}');
-      // final userData1 = await FirebaseFirestore.instance
-      //     .collection('cars')
-      //     .doc(user!.uid)
-      //     .get();
+      final _auth = firebase_auth.FirebaseAuth.instance;
+      firebase_auth.User? _user;
+      _user = _auth.currentUser;
+      final userData1 = await FirebaseFirestore.instance
+          .collection('users')
+          .doc(_user!.uid)
+          .get();
+      
+      print("user = $_user");
+      if (userData1.data() == null) {
+        await db.setUsers(
+          //ใช้ setProduct เพื่อเพิ่มหรือแก้ไขเอกสารไปยังฐานข้อมูล Cloud Firestore
+          user: UsersModel(
+            id: _user.uid,
+            userName: '${_user.displayName}',
+            state: false,
+            images: _user.photoURL!,
+            location: '',
+            time: '',
+            phone: _user.phoneNumber ?? '',
+            email: _user.email ?? '',
+            address: '',
+          ),
+        );
+      }
     } catch (e) {
       print('ล็อกอินเข้าสู่ระบบผ่าน Facebook ผิดพลาด $e');
     }

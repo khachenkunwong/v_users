@@ -26,6 +26,20 @@ class Database {
   //           email: user.email ?? '',
   //         ),
   //       );
+  Future<void> setUsers({UsersModel? user}) async {
+    final _auth = firebase_auth.FirebaseAuth.instance;
+    firebase_auth.User? _user;
+    _user = _auth.currentUser;
+    final reference =
+        FirebaseFirestore.instance.collection('users').doc('${_user?.uid}');
+    // doc('users/SGxI1a2Zq9MKsTFvlGYzffd9aBn2/novel')
+    try {
+      await reference.set(user!.toMap());
+    } catch (err) {
+      rethrow;
+    }
+  }
+
   Future<void> setCars({CarsModel? cars}) async {
     final _auth = firebase_auth.FirebaseAuth.instance;
     firebase_auth.User? _user;
