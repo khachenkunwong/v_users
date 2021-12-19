@@ -5,6 +5,7 @@ import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_auth/firebase_auth.dart' as firebase_auth;
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:provider/src/provider.dart';
@@ -410,6 +411,95 @@ class _LoginState extends State<Login> {
                   ),
                 ),
               ),
+              Align(
+                alignment: const AlignmentDirectional(0, 0),
+                child: Padding(
+                  padding: const EdgeInsetsDirectional.fromSTEB(0, 10, 0, 0),
+                  child: Container(
+                    width: double.infinity,
+                    height: 44,
+                    child: Stack(
+                      children: [
+                        Align(
+                          alignment: AlignmentDirectional(0, 0),
+                          child: SizedBox(
+                            height: 47,
+                            width: 325,
+                            child: ElevatedButton.icon(
+                              // เมื่อกดปุ่มไปเเล้วถ้ายังทำงานไม่เสร็จจะให้แสดงสีเทาเพื่อป้องกันกันการกดซ้ำ
+                              onPressed: _busy
+                                  // กำหนดให้กดไม่ได้จนกว่าจะทำงานเสร็จ
+                                  ? null
+                                  // เมื่อยังไม่ได้กด
+                                  : () async {
+                                      // ทำการเปลี่ยนค่าเป็น true เพื่อทำให้กดไม่ได้ เเละทำการ รีหน้าใหม่เพื่ออัพเดทหน้าจอ
+                                      setState(() => _busy = true);
+                                      // // ทำการเรียกใช้งานฟังก์ชั่น _googleSignIn() เพื่อเข้าสู่ระบบผ่าน google
+                                      // // await รอให้ login เสร็จก่อนเเล้วค่อยไปทำงานบันทัดต่อไป
+                                      final userfacebook = await _loginWithFacebook();
+
+                                      // // setState(() => _busy = false);
+                                      // // mounted เป็นการป้องการ การ error ว่าไม่เคลียร์หน่วยความจำเมื่อไปหน้าอื่นหรือปิดหน้านี้
+                                      if (mounted) {
+                                        // ทำการเปลี่ยนค่าเป็น false เพื่อทำให้กดได้ และรีหน้าใหม่เพื่ออัพเดทหน้าจอ
+                                        setState(() => _busy = false);
+                                        //   // เช็คว่าค่า mounted คือค่าอะไรในตอนนี้(เอาไว้เช็คดูลำดับการทำงานเฉยๆว่าทำงานถึงไหนเเล้ว)
+                                        print('กำลังทำงาน = $mounted');
+                                      }
+                                      print('_busy = $mounted');
+                                    },
+                              // ตั้งค่าปุ่มเช่น สี ตัวอักษร สีตัวอักษร สีพื้นหลัง สีพื้นหลังตัวอักษร
+                              style: ElevatedButton.styleFrom(
+                                // กำหนดสีปุ่ม
+                                primary: Colors.white,
+                                elevation: 4,
+                                side: const BorderSide(
+                                  color: Colors.transparent,
+                                  width: 0,
+                                ),
+                                textStyle: GoogleFonts.getFont(
+                                  'Roboto',
+                                  color: const Color(0xFF1877F2),
+                                  fontWeight: FontWeight.w500,
+                                  fontSize: 17,
+                                ),
+                              ),
+                              icon: const Icon(
+                                Icons.add,
+                                color: Colors.transparent,
+                                size: 20,
+                              ),
+                              label: Text(
+                                'Login with Facebook',
+                                style: GoogleFonts.getFont(
+                                  'Roboto',
+                                  color: const Color(0xFF606060),
+                                  fontSize: 17,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                        Align(
+                          alignment: const AlignmentDirectional(-0.83, 0),
+                          child: Container(
+                            width: 22,
+                            height: 22,
+                            clipBehavior: Clip.antiAlias,
+                            decoration: const BoxDecoration(
+                              shape: BoxShape.circle,
+                            ),
+                            child: Image.asset(
+                              'assets/images/Facebook.png',
+                              fit: BoxFit.contain,
+                            ),
+                          ),
+                        )
+                      ],
+                    ),
+                  ),
+                ),
+              ),
               // ปุ่มเอาไว้กดลงทะเบียน
               Row(
                 mainAxisSize: MainAxisSize.max,
@@ -540,6 +630,21 @@ class _LoginState extends State<Login> {
     return user;
   }
 
-  // Sign in Anonymously.
-
+  Future _loginWithFacebook() async {
+    try {
+      final facebookLoginResult = await FacebookAuth.instance.login();
+      final userData = await FacebookAuth.instance.getUserData();
+      final facebookAuthCredential = FacebookAuthProvider.credential(
+        facebookLoginResult.accessToken!.token,
+      );
+      await FirebaseAuth.instance.signInWithCredential(facebookAuthCredential);
+      print('userData = ${userData}');
+      // final userData1 = await FirebaseFirestore.instance
+      //     .collection('cars')
+      //     .doc(user!.uid)
+      //     .get();
+    } catch (e) {
+      print('ล็อกอินเข้าสู่ระบบผ่าน Facebook ผิดพลาด $e');
+    }
+  }
 }

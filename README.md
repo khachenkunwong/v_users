@@ -25,9 +25,9 @@
 - :heavy_check_mark: ล็อกอิน Google
   - :heavy_check_mark: Authentication ระบบยืนยันตัวต้นว่า gmail นี้มีจริง
   - :heavy_check_mark: Cloud Firestore เก็บข้อมูลผู้ใช้ที่สมัครไว้
-- :warning: ล็อกอิน Facebook
-  - :warning: Authentication ระบบยืนยันตัวต้นว่า Facebook นี้มีจริง
-  - :warning: Cloud Firestore เก็บข้อมูลผู้ใช้ที่สมัครไว้
+- :heavy_check_mark: ล็อกอิน Facebook
+  - :heavy_check_mark: Authentication ระบบยืนยันตัวต้นว่า Facebook นี้มีจริง
+  - :x: Cloud Firestore เก็บข้อมูลผู้ใช้ที่สมัครไว้
 - :warning: ล็อกอิน Email หรือเเบบพิมพ์ลงไปในชื่อผู้ใช้ และ รหัสผ่าน
   - :warning: Authentication ระบบยืนยันตัวต้นว่า Gmail นี้มีจริง
   - :warning: Cloud Firestore เก็บข้อมูลผู้ใช้ที่สมัครไว้

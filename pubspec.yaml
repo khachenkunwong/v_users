@@ -49,6 +49,7 @@ dependencies:
   url_launcher: ^6.0.17
   flutterfire_ui: ^0.2.0+2
   cached_network_image: ^3.2.0
+  flutter_facebook_auth: ^3.5.7
 
 dev_dependencies:
   flutter_test:
