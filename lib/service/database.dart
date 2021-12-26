@@ -4,6 +4,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart' as firebase_auth;
 import 'package:v_users/models/cars_model.dart';
+import 'package:v_users/models/state_login_model.dart';
 import 'package:v_users/models/user_model.dart';
 
 //ติดต่อกับ firebase
@@ -78,6 +79,23 @@ class Database {
     }
   }
 
+  Future<void> setStateLogin({StateLoginModel? stateuser}) async {
+    final _auth = firebase_auth.FirebaseAuth.instance;
+    firebase_auth.User? _user;
+    _user = _auth.currentUser;
+    // เป็นการสร้าง collection ซ้อน collection คือ getjob อยู่ใน cars
+    final reference = FirebaseFirestore.instance
+        .collection('statelogin')
+        .doc('${_user?.uid}');
+    // doc('users/SGxI1a2Zq9MKsTFvlGYzffd9aBn2/novel')
+    try {
+      await reference.set(stateuser!.toMap());
+      print('สร้าง getjob เรียบร้อย');
+    } catch (err) {
+      rethrow;
+    }
+  }
+
   Future<void> setJobHistory({UsersModel? users, id}) async {
     final _auth = firebase_auth.FirebaseAuth.instance;
     firebase_auth.User? _user;
@@ -114,9 +132,8 @@ class Database {
     final _auth = firebase_auth.FirebaseAuth.instance;
     firebase_auth.User? _user;
     _user = _auth.currentUser;
-    final reference = FirebaseFirestore.instance
-        .collection('carspublic')
-        .doc('${cars?.id}');
+    final reference =
+        FirebaseFirestore.instance.collection('carspublic').doc('${cars?.id}');
     // doc('users/SGxI1a2Zq9MKsTFvlGYzffd9aBn2/novel')
     try {
       await reference.set(cars!.toMap());
@@ -146,6 +163,7 @@ class Database {
         // ถ้าเกิด error เกิดขึ้นให้ทำงานตรงนี้
         .catchError((error) => print("Failed to update user: $error"));
   }
+
   // อัพเดดเฉพาะฟิลด์ที่ต้องการ ตัวนี้อัพเดด statejob โดยพามิเตอร์ที่รับผ่าน CarsModel คือ statejob ตัวเดียว
   Future<void> updateCarsStatejob({CarsModel? cars}) {
     // กำหนดตำแหน่งที่ต้องการอัพเดด คือ collection cars
@@ -162,6 +180,7 @@ class Database {
         .then((value) => print("อัพเดต statejob"))
         .catchError((error) => print("Failed to update user: $error"));
   }
+
   // get คือนำข้อมูลที่อยู่ใน Cloud Firestore มาแสดงผลในหน้าจอข้อผู้ใช้
   Stream<List<CarsModel>> getCars() {
     // กำหนดตำแหน่งที่ต้องการอัพเดด คือ collection cars
@@ -179,7 +198,23 @@ class Database {
       }).toList();
     });
   }
-
+  Stream<List<StateLoginModel>> getStateLogin() {
+    // กำหนดตำแหน่งที่ต้องการอัพเดด คือ collection cars
+    final reference = FirebaseFirestore.instance.collection('statelogin');
+    final snapshots = reference.snapshots();
+    //QuerySnapshot<Map<String, dynamic>> snapshot
+    //QuerySnapshot<Object?> snapshot
+    // ที่ทำกันซ้อนกันหลายๆอันคือ ทำการเเปลง type เป็น type ที่ต้องการเเล้วถึงจะใช้ได้
+    return snapshots.map((snapshot) {
+      return snapshot.docs.map((doc) {
+        // doc.data() คือข้อมูลจริงใน Cloud Firestore
+        // CarsModel. คือทำให้สารารถกำหนดเรียกดูตาม class CarsModel ได้เลย เช่น
+        // snapshot.data().state คือการเอาข้อมูลเฉพาะฟิลด์ state มาเเสดง
+        return StateLoginModel.fromMap(doc.data());
+      }).toList();
+    });
+  }
+// statelogin
   Stream<List<UsersModel>> getUsersPublic() {
     final reference = FirebaseFirestore.instance.collection('userspublic');
     //เรียงเอกสารจากมากไปน้อย โดยใช้ ฟิลด์ id
@@ -192,6 +227,7 @@ class Database {
       }).toList();
     });
   }
+
   Stream<List<CarsModel>> getCarsPublic() {
     final reference = FirebaseFirestore.instance.collection('carspublic');
     //เรียงเอกสารจากมากไปน้อย โดยใช้ ฟิลด์ id
@@ -204,6 +240,7 @@ class Database {
       }).toList();
     });
   }
+
   // การดูข้อมูลที่ collection ซ้อน collection
   Stream<List<UsersModel>> getGetJob() {
     final _auth = firebase_auth.FirebaseAuth.instance;
@@ -237,8 +274,9 @@ class Database {
       rethrow;
     }
   }
-  // การลบ ข้อมูลที่ collection ซ้อน collection ถ้าต้องการลบเเบบไม่ซ้อนเเค่เอา 
-  // .collection('getjob').doc('${users?.id}') ออก ก็ได้กำหนดให้ลบที่ 
+
+  // การลบ ข้อมูลที่ collection ซ้อน collection ถ้าต้องการลบเเบบไม่ซ้อนเเค่เอา
+  // .collection('getjob').doc('${users?.id}') ออก ก็ได้กำหนดให้ลบที่
   // collection cars ที่ doc ผู้ใช้
   Future<void> deleteGetJob({UsersModel? users}) async {
     final _auth = firebase_auth.FirebaseAuth.instance;
