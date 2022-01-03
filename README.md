@@ -22,10 +22,10 @@
 
 #### ระบบ
 
-- :heavy_check_mark: ล็อกอิน Google
+- :heavy_check_mark: ล็อกอิน Google *(update เพิ่มเติม 03/01/65) อาร์ม*
   - :heavy_check_mark: Authentication ระบบยืนยันตัวต้นว่า gmail นี้มีจริง
   - :heavy_check_mark: Cloud Firestore เก็บข้อมูลผู้ใช้ที่สมัครไว้
-- :heavy_check_mark: ล็อกอิน Facebook *(update 19/12/64) อาร์ม*
+- :heavy_check_mark: ล็อกอิน Facebook *(update เพิ่มเติม 03/01/65) อาร์ม*
   - :heavy_check_mark: Authentication ระบบยืนยันตัวต้นว่า Facebook นี้มีจริง *(update 19/12/64) อาร์ม*
   - :heavy_check_mark: Cloud Firestore เก็บข้อมูลผู้ใช้ที่สมัครไว้ *(update 19/12/64) อาร์ม*
 - :warning: ล็อกอิน Email หรือเเบบพิมพ์ลงไปในชื่อผู้ใช้ และ รหัสผ่าน
@@ -33,6 +33,7 @@
   - :warning: Cloud Firestore เก็บข้อมูลผู้ใช้ที่สมัครไว้
   - :warning: ลืมรหัสผ่าน
 - :heavy_check_mark: เมื่อไม่เลือก บัญชี Gmail ที่จะล็อกอินแล้วกดย้อนกลับ *(update 18/12/64) อาร์ม*
+- :warning: กรณีที่เน็ตหลุดเเล้วเเอปจะเกิดการค้างเนื่องจากรอนานจนหมดเวลาการร้องขอ
 
 ### หน้าผู้ใช้เลือกรถ
 
@@ -91,10 +92,10 @@
 
 #### ระบบ
 
-- :heavy_check_mark: ล็อกอิน Google
+- :heavy_check_mark: ล็อกอิน Google *(update เพิ่มเติม 03/01/65) อาร์ม*
   - :heavy_check_mark: Authentication ระบบยืนยันตัวต้นว่า gmail นี้มีจริง
   - :heavy_check_mark: Cloud Firestore เก็บข้อมูลผู้ใช้ที่สมัครไว้
-- :heavy_check_mark: ล็อกอิน Facebook *(update 26/12/64) อาร์ม*
+- :heavy_check_mark: ล็อกอิน Facebook *(update เพิ่มเติม 03/01/65) อาร์ม*
   - :heavy_check_mark: Authentication ระบบยืนยันตัวต้นว่า Facebook นี้มีจริง *(update 26/12/64) อาร์ม*
   - :heavy_check_mark: Cloud Firestore เก็บข้อมูลผู้ใช้ที่สมัครไว้ *(update 26/12/64) อาร์ม*
 - :warning: ล็อกอิน Email หรือเเบบพิมพ์ลงไปในชื่อผู้ใช้ และ รหัสผ่าน
@@ -102,6 +103,7 @@
   - :warning: Cloud Firestore เก็บข้อมูลผู้ใช้ที่สมัครไว้
   - :warning: ลืมรหัสผ่าน
 - :heavy_check_mark: เมื่อไม่เลือก บัญชี Gmail ที่จะล็อกอินแล้วกดย้อนกลับ *(update 26/12/64) อาร์ม*
+- :warning: กรณีที่เน็ตหลุดเเล้วเเอปจะเกิดการค้างเนื่องจากรอนานจนหมดเวลาการร้องขอ
 
 ### หน้าเลือกรับงาน
 
@@ -118,7 +120,8 @@
 - :heavy_check_mark: เปิดปิดสถาะว่ารับงานหรือไม่รับงานถ้าไม่รับงานก็จะไม่แสดงบนหน้าจอของคนให้งาน
 - :heavy_check_mark: ล็อกเอาท์
 - :heavy_check_mark: ฟังชันรับงาน
-- :heavy_check_mark: ฟังชันขออนุญาติผู้ใช้เปิดตำแหน่ง Location (GPS)
+- :heavy_check_mark: ฟังชันขออนุญาติผู้ใช้เปิดตำแหน่ง Location (GPS) *(update เพิ่มเติม 03/01/65) อาร์ม*
+- :heavy_check_mark แสดงที่อยู่ของคนขับ *(update 03/01/65) อาร์ม*
 - :warning: ดูรายระเอีดยเพิ่มเติมของคนให้งาน
 
 ### หน้ารอกดเริ่มงาน
@@ -132,7 +135,7 @@
 #### ระบบ
 
 - :heavy_check_mark: เชื่อมต่อ Cloud Firestore ที่เก็บข้อมูลของงานที่จะรับ
-- :heavy_check_mark: แสดงข้อมูลของผู้ให้งาน
+- :heavy_check_mark: แสดงข้อมูลของผู้ให้งาน *(update เพิ่มเติม 03/01/65) อาร์ม*
 - :heavy_check_mark: ฟังชันยกเลิกงาน
 - :heavy_check_mark: ฟังชันเริ่มงาน
 - :warning: โทรภายในแอป
@@ -147,11 +150,13 @@
 - :heavy_check_mark: หน้านำทาง
 
 #### ระบบ
-- :heavy_check_mark: หาตำแหน่งของผู้ใช้ (My location)
-- :heavy_check_mark:เชื่อม Google Map
-- :heavy_check_mark: แสดง Google Map
-- :heavy_check_mark: แสดงตำแหน่งของผู้ใช้ในปัจจุบัน
-- :x: นำทาง ลากเส้นระหว่างตำแหน่งคนขับไปหาคนสั้งงาน
+- :heavy_check_mark: หาตำแหน่งของผู้ใช้ (My location) *(update เพิ่มเติม 03/01/65) อาร์ม*
+- :heavy_check_mark: เชื่อม Google Map
+- :heavy_check_mark: แสดง Google Map *(update เพิ่มเติม 03/01/65) อาร์ม*
+- :heavy_check_mark: แสดงตำแหน่งของผู้ใช้ในปัจจุบัน *(update เพิ่มเติม 03/01/65) อาร์ม* 
+- :heavy_check_mark: นำทาง ลากเส้นระหว่างตำแหน่งคนขับไปหาคนสั้งงาน *(update 03/01/65) อาร์ม*
+- :heavy_check_mark: คำนวนระยะทางระหว่าง คนขับกับคนเรียกรถ *(update 03/01/65) อาร์ม*
+- :heavy_check_mark: คำนวนระยะเวลาในการเดินทางของคนขับกับคนเรียกรถ *(update 03/01/65) อาร์ม*
 - :x: ฟังชันเสร็จงาน
 ## หน้าเพิ่มเติม
 
@@ -189,3 +194,18 @@
   - เพิ่มหน้าเลือก User และ Car
   - เพิ่ม collection นำไปใช้ในการควบคุม User กับ Car 
   - แก้เอกสาร
+- v0.8
+  - เปลียน type ฟิลล์ location ของ user model และ cars model
+  - อัพเดต gradle เป็น version 7.0.2 เพื่อทำให้ใช้เเพกเก็ต geolocator 
+  - เพิ่มเเพกเก็ด geolocator ใช้เพื่อหาตำเเหน่งปัจจุบัน geocoding flutter_polyline_points ใช้เพื่อวาดเส้นใน google map google_maps_widget ใช้เพื่องานต่อการเขียนโคตโดยจะเเสดงเป็น google map
+  - เพิ่ม ฟิลล์ distance time address ใน cars model
+  - เพิ่มไฟล์ map_view.dart เเทนไฟล์ google map ตัวเดิม
+  - ลบไฟล์ googlemappage.dart ออก
+  - แก้ order.dart เปลี่ยน Location ไปใช้ geolocator เเทน
+  - เพิ่มการนำทางใน google map ใส่ icon ภาพให้คนขับ และ คนเรียกรถ
+  - เพิ่มการขอการเข้าถึง GPS 
+  - เพิ่มฟังชันอัพเดตใน database.dart ของคนขับรถคือ Address, Time, Distance
+  - แก้ ไฟล์ login.dart ของคนขับรถและคนเรียกรถ โดยทำการบันทึกตำแหน่งที่อยู่ปัจจุบัน หรือ my location ครั้งเเรกที่สมัคร หรือ login
+  - เพิ่มการคำนวนเวลาใช้ในการเดินทางและระยะทางในการเดินทาง
+  - เพิ่มการหาที่อยู่ของผู้ใช้ในปัจจุบัน เฉพาะคนขับ เช่น จังหมด พะเยา อำเภอเมือง 56000
+  - เปลี่ยน api key ของ google map และเปิดการใช้งาน Google Maps Platform เป็นแบบทดลองใช้

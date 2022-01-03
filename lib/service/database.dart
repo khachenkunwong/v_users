@@ -180,6 +180,63 @@ class Database {
         .then((value) => print("อัพเดต statejob"))
         .catchError((error) => print("Failed to update user: $error"));
   }
+  Future<void> updateCarsTime({CarsModel? cars}) {
+    // กำหนดตำแหน่งที่ต้องการอัพเดด คือ collection cars
+    final reference = FirebaseFirestore.instance.collection('cars');
+    final _auth = firebase_auth.FirebaseAuth.instance;
+    firebase_auth.User? _user;
+    _user = _auth.currentUser;
+    return reference
+        // _user?.uid คือ id ข้อมูลใช้ใน Authentication ในfirebase
+        .doc(_user?.uid)
+        // ตัวนี้คืออัพเดต จะเพิ่มพวกฟิลด์ที่ต้องการอัพเดดเพิ่มก็ได้ เช่น 'username': cars?.username,
+        // แต่ก็ต้องรับค่าเพิ่มจากรับเเค่ state รับ username ด้วย
+        .update({
+          'time': cars?.time,
+        })
+        // ถ้าเกิดไม่ ทำงานสำเร็จเเสดง "อัพเดต state" ใน terminal
+        .then((value) => print("อัพเดต time"))
+        // ถ้าเกิด error เกิดขึ้นให้ทำงานตรงนี้
+        .catchError((error) => print("Failed to update user: $error"));
+  }
+  Future<void> updateCarsDistance({CarsModel? cars}) {
+    // กำหนดตำแหน่งที่ต้องการอัพเดด คือ collection cars
+    final reference = FirebaseFirestore.instance.collection('cars');
+    final _auth = firebase_auth.FirebaseAuth.instance;
+    firebase_auth.User? _user;
+    _user = _auth.currentUser;
+    return reference
+        // _user?.uid คือ id ข้อมูลใช้ใน Authentication ในfirebase
+        .doc(_user?.uid)
+        // ตัวนี้คืออัพเดต จะเพิ่มพวกฟิลด์ที่ต้องการอัพเดดเพิ่มก็ได้ เช่น 'username': cars?.username,
+        // แต่ก็ต้องรับค่าเพิ่มจากรับเเค่ state รับ username ด้วย
+        .update({
+          'distance': cars?.distance,
+        })
+        // ถ้าเกิดไม่ ทำงานสำเร็จเเสดง "อัพเดต state" ใน terminal
+        .then((value) => print("อัพเดต distance"))
+        // ถ้าเกิด error เกิดขึ้นให้ทำงานตรงนี้
+        .catchError((error) => print("Failed to update user: $error"));
+  }
+  Future<void> updateCarsAddress({CarsModel? cars}) {
+    // กำหนดตำแหน่งที่ต้องการอัพเดด คือ collection cars
+    final reference = FirebaseFirestore.instance.collection('cars');
+    final _auth = firebase_auth.FirebaseAuth.instance;
+    firebase_auth.User? _user;
+    _user = _auth.currentUser;
+    return reference
+        // _user?.uid คือ id ข้อมูลใช้ใน Authentication ในfirebase
+        .doc(_user?.uid)
+        // ตัวนี้คืออัพเดต จะเพิ่มพวกฟิลด์ที่ต้องการอัพเดดเพิ่มก็ได้ เช่น 'username': cars?.username,
+        // แต่ก็ต้องรับค่าเพิ่มจากรับเเค่ state รับ username ด้วย
+        .update({
+          'address': cars?.address,
+        })
+        // ถ้าเกิดไม่ ทำงานสำเร็จเเสดง "อัพเดต state" ใน terminal
+        .then((value) => print("อัพเดต address"))
+        // ถ้าเกิด error เกิดขึ้นให้ทำงานตรงนี้
+        .catchError((error) => print("Failed to update user: $error"));
+  }
 
   // get คือนำข้อมูลที่อยู่ใน Cloud Firestore มาแสดงผลในหน้าจอข้อผู้ใช้
   Stream<List<CarsModel>> getCars() {
@@ -242,7 +299,7 @@ class Database {
   }
 
   // การดูข้อมูลที่ collection ซ้อน collection
-  Stream<List<UsersModel>> getGetJob() {
+  Stream<List<UsersModel>> getCarsGetJob() {
     final _auth = firebase_auth.FirebaseAuth.instance;
     firebase_auth.User? _user;
     _user = _auth.currentUser;
@@ -260,7 +317,7 @@ class Database {
       }).toList();
     });
   }
-
+  
   Future<void> deleteUsersPublic({UsersModel? users}) async {
     final reference = FirebaseFirestore.instance
         .collection('userspublic')

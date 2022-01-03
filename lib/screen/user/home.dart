@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:uuid/uuid.dart';
 import 'package:firebase_auth/firebase_auth.dart' as firebase_auth;
@@ -59,8 +60,9 @@ class _HomePageState extends State<HomePage> {
                       // ลงในฟิล images
                       images: _user?.photoURL!,
                       cartype: 'รถยนต์',
-                      location: '',
+                      location: GeoPoint(53.483959, -2.244644),
                       time: '',
+                      distance: '',
                       // กำหนดข้อมูลจาก Authentication ที่เป็น เบอร์โทร ของผู้ใช้ ลงไปในฐานข้อมูล Cloud Firestore
                       // ลงใน ฟิล phone การใช้ตัวนี้ ?? ก็เหมือนกับการใช้ if else เช่น
                       // if (_user?.phoneNumber != null) {
@@ -73,6 +75,7 @@ class _HomePageState extends State<HomePage> {
                       cost: '',
                       phone: _user?.phoneNumber ?? '',
                       email: _user?.email ?? '',
+                      address: '',
                     ),
                   );
                   // สั่งให้ รีโหลดหน้า

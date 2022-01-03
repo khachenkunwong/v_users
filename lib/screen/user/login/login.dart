@@ -5,6 +5,7 @@ import 'package:firebase_auth/firebase_auth.dart' as firebase_auth;
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:v_users/models/state_login_model.dart';
@@ -37,6 +38,7 @@ class _LoginState extends State<Login> {
   bool _busy = false;
   // เอาใช้เพื่อ login ผ่าน google
   var user;
+  late Position _currentPosition;
 
   @override
   // initState() กำหนดให้ทำงานหรือเรียกใช้งานตัวไหนตอนเปิดหน้านี้มาครังเเรก
@@ -590,6 +592,17 @@ class _LoginState extends State<Login> {
           print('User is signed in!');
         }
       });
+      await Geolocator.getCurrentPosition(
+              desiredAccuracy: LocationAccuracy.high)
+          .then((Position position) async {
+        setState(() {
+          _currentPosition = position;
+          print('CURRENT POS: $_currentPosition');
+          print('end mapController');
+        });
+      }).catchError((e) {
+        print(e);
+      });
       if (userData.data() == null) {
         print('login google user');
         await db.setUsers(
@@ -599,7 +612,7 @@ class _LoginState extends State<Login> {
             userName: '${user.displayName}',
             state: false,
             images: user.photoURL!,
-            location: '',
+            location: GeoPoint(_currentPosition.latitude, _currentPosition.longitude),
             time: '',
             phone: user.phoneNumber ?? '',
             email: user.email ?? '',
@@ -658,6 +671,17 @@ class _LoginState extends State<Login> {
           .get();
 
       print("user = $_user");
+      await Geolocator.getCurrentPosition(
+              desiredAccuracy: LocationAccuracy.high)
+          .then((Position position) async {
+        setState(() {
+          _currentPosition = position;
+          print('CURRENT POS: $_currentPosition');
+          print('end mapController');
+        });
+      }).catchError((e) {
+        print(e);
+      });
       if (userData1.data() == null) {
         print('login facebook user');
         await db.setUsers(
@@ -667,7 +691,7 @@ class _LoginState extends State<Login> {
             userName: '${_user.displayName}',
             state: false,
             images: _user.photoURL!,
-            location: '',
+            location: GeoPoint(_currentPosition.latitude, _currentPosition.longitude),
             time: '',
             phone: _user.phoneNumber ?? '',
             email: _user.email ?? '',

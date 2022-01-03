@@ -5,6 +5,7 @@ import 'package:firebase_auth/firebase_auth.dart' as firebase_auth;
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:provider/src/provider.dart';
@@ -35,6 +36,60 @@ class _LoginCarState extends State<LoginCar> {
   bool _busy = false;
   // เอาใช้เพื่อ login ผ่าน google
   var user;
+  late Position _currentPosition;
+
+  Future<Position> _determinePosition() async {
+    bool serviceEnabled;
+    LocationPermission permission;
+
+    // Test if location services are enabled.
+    serviceEnabled = await Geolocator.isLocationServiceEnabled();
+    if (!serviceEnabled) {
+      // Location services are not enabled don't continue
+      // accessing the position and request users of the
+      // App to enable the location services.
+      return Future.error('Location services are disabled.');
+    }
+
+    permission = await Geolocator.checkPermission();
+    if (permission == LocationPermission.denied) {
+      permission = await Geolocator.requestPermission();
+      if (permission == LocationPermission.denied) {
+        // Permissions are denied, next time you could try
+        // requesting permissions again (this is also where
+        // Android's shouldShowRequestPermissionRationale
+        // returned true. According to Android guidelines
+        // your App should show an explanatory UI now.
+        return Future.error('Location permissions are denied');
+      }
+    }
+
+    if (permission == LocationPermission.deniedForever) {
+      // Permissions are denied forever, handle appropriately.
+      return Future.error(
+          'Location permissions are permanently denied, we cannot request permissions.');
+    }
+    Position position = await Geolocator.getCurrentPosition(
+        desiredAccuracy: LocationAccuracy.high);
+    print('position.latitude: ${position.latitude}');
+
+    // When we reach here, permissions are granted and we can
+    // continue accessing the position of the device.
+    return await Geolocator.getCurrentPosition();
+  }
+
+  _getCurrentLocation() async {
+    await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high)
+        .then((Position position) async {
+      setState(() {
+        _currentPosition = position;
+        print('CURRENT POS: $_currentPosition');
+        print('end mapController');
+      });
+    }).catchError((e) {
+      print(e);
+    });
+  }
 
   @override
   // initState() กำหนดให้ทำงานหรือเรียกใช้งานตัวไหนตอนเปิดหน้านี้มาครังเเรก
@@ -42,6 +97,7 @@ class _LoginCarState extends State<LoginCar> {
     super.initState();
     print('firebase == user');
     _user = _auth.currentUser;
+    _determinePosition();
     // _auth.authStateChanges().listen((firebase_auth.User? usr) {
     //   _user = usr;
     //   debugPrint('user=$_user');
@@ -329,7 +385,7 @@ class _LoginCarState extends State<LoginCar> {
                                         print('กำลังทำงาน = $mounted');
                                       }
                                       Navigator.pop(context);
-                                      
+
                                       print('_busy = $mounted');
                                     },
                               style: ElevatedButton.styleFrom(
@@ -419,7 +475,7 @@ class _LoginCarState extends State<LoginCar> {
                                         print('กำลังทำงาน = $mounted');
                                       }
                                       Navigator.pop(context);
-                                      
+
                                       print('_busy = $mounted');
                                     },
                               // ตั้งค่าปุ่มเช่น สี ตัวอักษร สีตัวอักษร สีพื้นหลัง สีพื้นหลังตัวอักษร
@@ -552,6 +608,19 @@ class _LoginCarState extends State<LoginCar> {
           print('User is signed in!');
         }
       });
+      await Geolocator.getCurrentPosition(
+              desiredAccuracy: LocationAccuracy.high)
+          .then((Position position) async {
+        setState(() {
+          _currentPosition = position;
+          print('CURRENT POS: $_currentPosition');
+          print('end mapController');
+        });
+      }).catchError((e) {
+        print(e);
+      });
+
+      print(_currentPosition.latitude);
       if (userData.data() == null) {
         await db.setCars(
           //ใช้ setProduct เพื่อเพิ่มหรือแก้ไขเอกสารไปยังฐานข้อมูล Cloud Firestore
@@ -562,15 +631,18 @@ class _LoginCarState extends State<LoginCar> {
             statejob: false,
             images: user.photoURL!,
             cartype: '',
-            location: '',
+            location:
+                GeoPoint(_currentPosition.latitude, _currentPosition.longitude),
             time: '',
+            distance:'',
             cost: '',
             phone: user.phoneNumber ?? '',
             email: user.email ?? '',
+            address: '',
           ),
         );
       }
-      db.setStateLogin(stateuser: StateLoginModel(user: false,car: true));
+      db.setStateLogin(stateuser: StateLoginModel(user: false, car: true));
       // ต้องเอาออกเมื่อใช้เสร็จ
       // await db.setUsersPublic(
       //     //ใช้ setProduct เพื่อเพิ่มหรือแก้ไขเอกสารไปยังฐานข้อมูล Cloud Firestore
@@ -586,7 +658,7 @@ class _LoginCarState extends State<LoginCar> {
       //       address: '',
       //     ),
       //   );
-      
+
     } catch (err) {
       print(err);
     }
@@ -616,6 +688,17 @@ class _LoginCarState extends State<LoginCar> {
           .collection('cars')
           .doc(_user!.uid)
           .get();
+      await Geolocator.getCurrentPosition(
+              desiredAccuracy: LocationAccuracy.high)
+          .then((Position position) async {
+        setState(() {
+          _currentPosition = position;
+          print('CURRENT POS: $_currentPosition');
+          print('end mapController');
+        });
+      }).catchError((e) {
+        print(e);
+      });
 
       print("user = $_user");
       if (userData1.data() == null) {
@@ -629,16 +712,18 @@ class _LoginCarState extends State<LoginCar> {
             statejob: false,
             images: _user.photoURL!,
             cartype: '',
-            location: '',
+            location:
+                GeoPoint(_currentPosition.latitude, _currentPosition.longitude),
             time: '',
+            distance: '',
             cost: '',
             phone: _user.phoneNumber ?? '',
             email: _user.email ?? '',
+            address: '',
           ),
         );
       }
-      db.setStateLogin(stateuser: StateLoginModel(user: false,car: true));
-      
+      db.setStateLogin(stateuser: StateLoginModel(user: false, car: true));
     } catch (e) {
       print('ล็อกอินเข้าสู่ระบบผ่าน Facebook ผิดพลาด $e');
     }

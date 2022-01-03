@@ -36,7 +36,7 @@
             android:name="flutterEmbedding"
             android:value="2" />
         <meta-data android:name="com.google.android.geo.API_KEY"
-               android:value="AIzaSyAYF1oHTk9j7oh7gioOQZSLSkgg_EkPj3k"/>
+               android:value="AIzaSyDTd1w6YJIqbEg2Mxt-oBtB11X-EH9MJso"/>
         <meta-data android:name="com.facebook.sdk.ApplicationId" 
                android:value="@string/facebook_app_id"/>
 

@@ -1,23 +1,26 @@
+import 'dart:async';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_polyline_points/flutter_polyline_points.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:flutter_switch/flutter_switch.dart';
+import 'package:geocoding/geocoding.dart';
+import 'package:geolocator/geolocator.dart';
 
 import 'package:google_fonts/google_fonts.dart';
 
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:location/location.dart';
+
 import 'package:firebase_auth/firebase_auth.dart' as firebase_auth;
 import 'package:uuid/uuid.dart';
 import 'package:v_users/models/cars_model.dart';
 import 'package:v_users/models/user_model.dart';
 import 'package:v_users/service/database.dart';
 
-import 'googlemappage.dart';
-
+import 'map_view.dart';
 
 class OrderView extends StatefulWidget {
   @override
@@ -27,13 +30,22 @@ class OrderView extends StatefulWidget {
 class _OrderViewState extends State<OrderView> {
   GoogleMapController? controller1;
   // ใช้เพื่อเกิบ My location ของผู้ใช้เช่น 19.00562,99.82707 หรือ lat,long
-  LocationData? currentLocation;
+  // LocationData? currentLocation;
   // เรียกใช้เพื่อติดต่อกับ Cloud Firestore เพี่อ get set updata delete
   Database db = Database.instance;
   // เอามาใช้เพื่อหา my location ของผู้ใช้
-  Location? location;
+  // Location? location;
   // เอาไว้สร้าง id แบบไม่ซ้ำ
   var uuid = Uuid();
+  late PolylinePoints polylinePoints;
+  List<LatLng> polylineCoordinates = [];
+  String _currentAddress = '';
+  String _getcurrentAddress = '';
+  String _startAddress = '';
+  final _auth = firebase_auth.FirebaseAuth.instance;
+  firebase_auth.User? _user;
+  int number = 0;
+
   // 35-45 เอาไว้เก็บฟิลใน firebase
   var state_userpublic;
   var state1;
@@ -46,22 +58,93 @@ class _OrderViewState extends State<OrderView> {
   var address_userpublic;
   var id_userpublic;
   var id_cars;
+  final LocationSettings locationSettings = AndroidSettings(
+    accuracy: LocationAccuracy.high,
+    intervalDuration: const Duration(minutes: 1),
+  );
   // ทำเพื่อเมื่อต้องการกดให้หน้า google map ที่เราตั้งไว้มันจะจำให้หน้า google map
   // เลื่อหาตำแหน่งของผู้ใช้งานที่อยู่ในปัจจุบัน หรือที่อื้นที่เรากำหนดไว้ เช่น 19.00562,99.82707
   void mapCreated(controller2) {
     controller1 = controller2;
   }
 
+  _createPolylines(
+    double startLatitude,
+    double startLongitude,
+    // double 19.0308262,
+    // double 99.9241027,
+  ) async {
+    // Initializing PolylinePoints
+    polylinePoints = PolylinePoints();
+
+    // print('userData.docs.first.data(): ${userData.docs.first.data()}');
+
+    // Generating the list of coordinates to be used for
+    // drawing the polylines
+    PolylineResult result = await polylinePoints.getRouteBetweenCoordinates(
+      "AIzaSyDTd1w6YJIqbEg2Mxt-oBtB11X-EH9MJso", // Google Maps API Key
+      PointLatLng(startLatitude, startLongitude),
+      PointLatLng(19.0308262, 99.9241027),
+      travelMode: TravelMode.transit,
+    );
+
+    print('result.points: ${result.points}');
+
+    // Adding the coordinates to the list
+    if (result.points.isNotEmpty) {
+      print('rusul.point.isNotEmpty');
+      result.points.forEach((PointLatLng point) {
+        polylineCoordinates.add(LatLng(point.latitude, point.longitude));
+      });
+    }
+    await _getAddress(startLatitude, startLongitude);
+  }
+
+  _getAddress(double startLatitude, double startLongitude) async {
+    print('_getAddress');
+    try {
+      List<Placemark> p =
+          await placemarkFromCoordinates(startLatitude, startLongitude);
+
+      Placemark place = p[0];
+
+      setState(() {
+        //  ${place.country} ประเทศ ${place.name}, รหัสที่อยู่
+        _currentAddress =
+            "${place.administrativeArea} ${place.locality} ${place.postalCode}";
+        // startAddressController.text = _currentAddress;
+        _getcurrentAddress =
+            "${place.locality} ${place.subAdministrativeArea} จังหวัด${place.administrativeArea} ${place.postalCode}";
+        print('address: $_currentAddress');
+        if ((number % 2) == 0) {
+          db.updateCarsAddress(cars: CarsModel(address: '$_getcurrentAddress'));
+          number += 1;
+        }
+        this._startAddress = _currentAddress;
+      });
+    } catch (e) {
+      print(e);
+    }
+  }
+
   @override
   void initState() {
     super.initState();
-    //ตัว ทำให้มีลูกศอน location ของตำเเหน่งตัวเอง
-    location = Location();
-    // วิธีเอา lat,long ของตำเเหน่งของผู้ใช้งานมาใส่ในตัวแปร currentLocation
-    location?.onLocationChanged.listen((LocationData cLoc) {
-      currentLocation = cLoc;
+    _user = _auth.currentUser;
+    StreamSubscription<Position> positionStream =
+        Geolocator.getPositionStream(locationSettings: locationSettings)
+            .listen((Position position) {
+      print(position == null
+          ? 'Unknown'
+          : position.latitude.toString() +
+              ', ' +
+              position.longitude.toString() +
+              "arms  s");
+      if (position != null) {
+        print('เข้าเงื่อนไข');
+        _createPolylines(position.latitude, position.longitude);
+      }
     });
-    print('currentLocation = {$currentLocation}');
   }
 
   // เลือกดู collection cars ใน Cloud Firestore
@@ -75,12 +158,13 @@ class _OrderViewState extends State<OrderView> {
     // เรียกใช้ collection userspublic ใน Cloud Firestore มาเพื่อเป็นส่วนนึกในการแสดงข้อมูล
     Stream<List<UsersModel>> state2 = db.getUsersPublic();
     // เรียกใช้ collection getjob ใน Cloud Firestore มาเพื่อเป็นส่วนนึกในการแสดงข้อมูล
-    Stream<List<UsersModel>> state4 = db.getGetJob();
+    Stream<List<UsersModel>> state4 = db.getCarsGetJob();
     // แรนดอม id เช่น ScQHfMOi1UYPXkvvv08DI7JsFh23
     var uid = uuid.v1();
     final _auth = firebase_auth.FirebaseAuth.instance;
     firebase_auth.User? _user;
     _user = _auth.currentUser;
+    print('_startAddress: ${_startAddress.isEmpty}');
 
     return DefaultTabController(
       // มี Tabbar 2อัน
@@ -170,6 +254,9 @@ class _OrderViewState extends State<OrderView> {
                                 height: 35.0,
                                 valueFontSize: 15.0,
                                 toggleSize: 25.0,
+                                activeText: "เปิด",
+                                inactiveText: "ปิด",
+                                inactiveColor: Colors.red,
                                 // นำข้อมูลใน Cloud Firestore ฟิล state มาเเสดงเพี่อที่จะได้รู้ว่า
                                 // ผู้ใช้มีสถาะว่างหรือไม่
                                 value: data['state'],
@@ -226,7 +313,7 @@ class _OrderViewState extends State<OrderView> {
                         // กำหนดข้อมูลจาก Authentication ที่เป็น urlภาพ ของผู้ใช้ ลงไปในฐานข้อมูล Cloud Firestore
                         // ลงในฟิล images
                         images: _user?.photoURL!,
-                        location: '',
+                        location: GeoPoint(19.02111, 99.9223419),
                         time: '',
                         // กำหนดข้อมูลจาก Authentication ที่เป็น เบอร์โทร ของผู้ใช้ ลงไปในฐานข้อมูล Cloud Firestore
                         // ลงใน ฟิล phone การใช้ตัวนี้ ?? ก็เหมือนกับการใช้ if else เช่น
@@ -239,7 +326,7 @@ class _OrderViewState extends State<OrderView> {
                         // }
                         phone: _user?.phoneNumber ?? '',
                         email: _user?.email ?? '',
-                        address: '',
+                        address: "$_startAddress",
                       ),
                     );
                     // สั่งให้ รีโหลดหน้า
@@ -282,18 +369,18 @@ class _OrderViewState extends State<OrderView> {
                                         .data() as Map<String, dynamic>;
                                     this.state1 = data['state'];
 
-                                    // เช็คว่ามีข้อมูลหรือไม่ คือมี collection
-                                    // แต่ไม่มี ฟิลท์
-                                    if (snapshot.data?.length == 0) {
-                                      return Center(
-                                        child: Text('ยังไม่มีข้อมูลสินค้า'),
-                                      );
-                                    }
                                     print('มีสมาชิกไหม ${snapshot.hasData}');
                                     // ป้องกัน ฟิลท์ state เป็นค่าว่าง
                                     if (data['state'] != null) {
                                       // เอาไว้ดักเมื่อเราเปิดว่างงานเเล้วเเสดงงาน
                                       if (data['state'] == true) {
+                                        // เช็คว่ามีข้อมูลหรือไม่ คือมี collection
+                                        // แต่ไม่มี ฟิลท์
+                                        if (snapshot.data?.length == 0) {
+                                          return Center(
+                                            child: Text('ยังไม่มีงานในขณะนี้'),
+                                          );
+                                        }
                                         // ใช้listview เพื่อให้มันเรียกข้อมูลมาแสดงตามลำดับโดยใช้ตัวอ่างอิงเป็นindex
                                         // ก็คือมีเเบบ กำหนดตำเเหน่งข้อมูลของผู้ใช้ เป็น id กลับ index หรือก็คือมี 2วิธี
                                         return ListView.builder(
@@ -491,7 +578,15 @@ class _OrderViewState extends State<OrderView> {
                                                                 ],
                                                               ),
                                                               Text(
-                                                                'ใช้เวลา: ${snapshot.data?[index].time} นาที',
+                                                                'ระยะทาง: ${snapshot.data?[index].time} ',
+                                                                style:
+                                                                    GoogleFonts
+                                                                        .getFont(
+                                                                  'Poppins',
+                                                                ),
+                                                              ),
+                                                              Text(
+                                                                'ที่อยู่ ${snapshot.data?[index].address}',
                                                                 style:
                                                                     GoogleFonts
                                                                         .getFont(
@@ -678,23 +773,17 @@ class _OrderViewState extends State<OrderView> {
                                               primary: Color(0xFF0AC258),
                                             ),
                                             onPressed: () {
-                                              // ไปหน้า googlemmap
+                                              // ไปหน้า google mmap
+                                              // db.updateCarsState();
                                               Navigator.push(
                                                   context,
                                                   MaterialPageRoute(
-                                                      builder: (context) => GoogleMapPage(
-                                                          // lat:
-                                                          //     snapshot00.data[
-                                                          //             index]
-                                                          //         .lat,
-                                                          // long:
-                                                          //     snapshot00.data[
-                                                          //             index]
-                                                          //         .long,
-                                                          )));
+                                                      builder: (context) =>
+                                                          MapView(
+                                                              index: index)));
                                             },
                                             child: Text(
-                                              'เริ่มงาน',
+                                              'เปิดแผนที่',
                                               style: GoogleFonts.getFont(
                                                 'Poppins',
                                                 color: Colors.white,
@@ -739,8 +828,8 @@ class _OrderViewState extends State<OrderView> {
                                                     '${snapshot00.data?[index].images}',
                                                 userName:
                                                     '${snapshot00.data?[index].userName}',
-                                                location:
-                                                    '${snapshot00.data?[index].location}',
+                                                location: GeoPoint(
+                                                    19.02111, 99.9223419),
                                                 state: false,
                                                 time:
                                                     '${snapshot00.data?[index].time}',
@@ -796,7 +885,7 @@ class _OrderViewState extends State<OrderView> {
                                             padding: EdgeInsets.fromLTRB(
                                                 20, 10, 0, 0),
                                             child: Text(
-                                              'บ้านโพธิ์ชัย ต.หนองกวั่ง อ.บ้านม่วง จ.สกลนคร ${snapshot00.data?[index].address}',
+                                              '${snapshot00.data?[index].address}',
                                               style: GoogleFonts.getFont(
                                                 'Poppins',
                                                 color: Color(0xFF666666),
@@ -805,19 +894,7 @@ class _OrderViewState extends State<OrderView> {
                                               ),
                                             ),
                                           ),
-                                          Padding(
-                                            padding: EdgeInsets.fromLTRB(
-                                                20, 0, 0, 0),
-                                            child: Text(
-                                              '47120',
-                                              style: GoogleFonts.getFont(
-                                                'Poppins',
-                                                color: Color(0xFF666666),
-                                                fontWeight: FontWeight.normal,
-                                                fontSize: 14,
-                                              ),
-                                            ),
-                                          ),
+                                          
                                           Padding(
                                             padding: EdgeInsets.fromLTRB(
                                                 20, 0, 0, 0),
