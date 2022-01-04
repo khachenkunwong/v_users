@@ -141,6 +141,45 @@ class Database {
       rethrow;
     }
   }
+   //** เพิ่มเข้ามาสำหรับเพิ่มข้อมูลงงานใน users **
+  Future<void> setUserGetJob({CarsModel? cars}) async {
+    final _auth = firebase_auth.FirebaseAuth.instance;
+    firebase_auth.User? _user;
+    _user = _auth.currentUser;
+    // เป็นการสร้าง collection ซ้อน collection คือ getjob อยู่ใน cars
+    final reference = FirebaseFirestore.instance
+        .collection('users')
+        .doc('${_user?.uid}')
+        .collection('getjob')
+        .doc("${cars?.id}");
+    // doc('users/SGxI1a2Zq9MKsTFvlGYzffd9aBn2/novel')
+    try {
+      await reference.set(cars!.toMap());
+      print('สร้าง getjob เรียบร้อย');
+    } catch (err) {
+      rethrow;
+    }
+  }
+
+  //** เพิ่มเข้ามาสำหรับเพิ่มข้อมูลงประวัติใน users **
+  Future<void> setUserJobHistory({CarsModel? cars, id}) async {
+    final _auth = firebase_auth.FirebaseAuth.instance;
+    firebase_auth.User? _user;
+    _user = _auth.currentUser;
+    final reference = FirebaseFirestore.instance
+        .collection('users')
+        .doc('${_user?.uid}')
+        .collection('jobhistory')
+        .doc("${cars?.id}");
+    // doc('users/SGxI1a2Zq9MKsTFvlGYzffd9aBn2/novel')
+    try {
+      await reference.set(cars!.toMap());
+      print('สร้าง jobhistory เรียบร้อย');
+    } catch (err) {
+      rethrow;
+    }
+  }
+
 
   // อัพเดดเฉพาะฟิลด์ที่ต้องการ ตัวนี้อัพเดด state โดยพามิเตอร์ที่รับผ่าน CarsModel คือ state ตัวเดียวได้
   // เเตกต่างจาก set ที่เขียนทับทั้งหมดเเล้วทำให้ข้อมูลที่ไม่ได้กำหนดหายไป
@@ -317,6 +356,26 @@ class Database {
       }).toList();
     });
   }
+  //** เพิ่มเข้ามาสำหรับดูข้อมูลใน user **
+  Stream<List<CarsModel>> getUserJobCar() {
+    final _auth = firebase_auth.FirebaseAuth.instance;
+    firebase_auth.User? _user;
+    _user = _auth.currentUser;
+    final reference = FirebaseFirestore.instance
+        .collection('users')
+        .doc('${_user?.uid}')
+        .collection('getjob');
+    //.doc('${_user?.uid}');
+    //เรียงเอกสารจากมากไปน้อย โดยใช้ ฟิลด์ id
+    final snapshots = reference.snapshots();
+    //QuerySnapshot<Map<String, dynamic>> snapshot;
+    //QuerySnapshot<Object?> Snapshot
+    return snapshots.map((snapshot) {
+      return snapshot.docs.map((doc) {
+        return CarsModel.fromMap(doc.data());
+      }).toList();
+    });
+  }
   
   Future<void> deleteUsersPublic({UsersModel? users}) async {
     final reference = FirebaseFirestore.instance
@@ -361,6 +420,56 @@ class Database {
 
     final reference = FirebaseFirestore.instance
         .collection('cars')
+        .doc('${_user?.uid}')
+        .collection('jobhistory')
+        .doc('${users?.id}');
+    // final reference = FirebaseFirestore.instance.doc('Order/${order?.id}');
+    try {
+      await reference.delete();
+      print('ลบ jobhistory เรียบร้อย');
+    } catch (err) {
+      print('ลบ jobhistory ไม่ได้');
+      rethrow;
+    }
+  }
+
+  Future<void> deleteCarsPublic({CarsModel? cars}) async {
+    final reference =
+        FirebaseFirestore.instance.collection('carspublic').doc('${cars?.id}');
+    // final reference = FirebaseFirestore.instance.doc('Order/${order?.id}');
+    try {
+      await reference.delete();
+      print('ลบ carspublic เรียบร้อย');
+    } catch (err) {
+      print('ลบ carspublic ไม่ได้');
+      rethrow;
+    }
+  }
+  Future<void> deleteUserGetJob({CarsModel? users}) async {
+    final _auth = firebase_auth.FirebaseAuth.instance;
+    firebase_auth.User? _user;
+    _user = _auth.currentUser;
+    final reference = FirebaseFirestore.instance
+        .collection('users')
+        .doc('${_user?.uid}')
+        .collection('getjob')
+        .doc('${users?.id}');
+    // final reference = FirebaseFirestore.instance.doc('Order/${order?.id}');
+    try {
+      await reference.delete();
+      print('ลบ getjob เรียบร้อย');
+    } catch (err) {
+      print('ลบ getjob ไม่ได้');
+      rethrow;
+    }
+  }
+  Future<void> deleteUserJobHistory({CarsModel? users}) async {
+    final _auth = firebase_auth.FirebaseAuth.instance;
+    firebase_auth.User? _user;
+    _user = _auth.currentUser;
+
+    final reference = FirebaseFirestore.instance
+        .collection('users')
         .doc('${_user?.uid}')
         .collection('jobhistory')
         .doc('${users?.id}');

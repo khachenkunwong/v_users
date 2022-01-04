@@ -13,7 +13,6 @@ import 'package:v_users/models/state_login_model.dart';
 import 'package:v_users/models/user_model.dart';
 import 'package:v_users/service/database.dart';
 
-
 final kFirebaseAnalytics = FirebaseAnalytics();
 
 // ต้องใส่ sha 1 ด้วยใน firebase โดย ทำการคอมเม็น android.enableJetifier=true ออก เเล้วถึงจะห้า shi 1 เห็นเเล้วเมือจะรันก็มาเอาคอมเม็นออกจาก android.enableJetifier=trueไม่งั้นมันจะรันไม่ออก
@@ -359,8 +358,6 @@ class _LoginState extends State<Login> {
                                         // เช็คว่าค่า mounted คือค่าอะไรในตอนนี้(เอาไว้เช็คดูลำดับการทำงานเฉยๆว่าทำงานถึงไหนเเล้ว)
                                         print('กำลังทำงาน = $mounted');
                                       }
-                                      
-                                      
 
                                       Navigator.pop(context);
                                       print('_busy = $mounted');
@@ -453,7 +450,6 @@ class _LoginState extends State<Login> {
                                         //   // เช็คว่าค่า mounted คือค่าอะไรในตอนนี้(เอาไว้เช็คดูลำดับการทำงานเฉยๆว่าทำงานถึงไหนเเล้ว)
                                         print('กำลังทำงาน = $mounted');
                                       }
-                                      
 
                                       Navigator.pop(context);
                                       print('_busy = $mounted');
@@ -592,18 +588,19 @@ class _LoginState extends State<Login> {
           print('User is signed in!');
         }
       });
-      await Geolocator.getCurrentPosition(
-              desiredAccuracy: LocationAccuracy.high)
-          .then((Position position) async {
-        setState(() {
-          _currentPosition = position;
-          print('CURRENT POS: $_currentPosition');
-          print('end mapController');
-        });
-      }).catchError((e) {
-        print(e);
-      });
+      db.setStateLogin(stateuser: StateLoginModel(user: true, car: false));
       if (userData.data() == null) {
+        await Geolocator.getCurrentPosition(
+                desiredAccuracy: LocationAccuracy.high)
+            .then((Position position) async {
+          setState(() {
+            _currentPosition = position;
+            print('CURRENT POS: $_currentPosition');
+            print('end mapController');
+          });
+        }).catchError((e) {
+          print(e);
+        });
         print('login google user');
         await db.setUsers(
           //ใช้ setProduct เพื่อเพิ่มหรือแก้ไขเอกสารไปยังฐานข้อมูล Cloud Firestore
@@ -612,7 +609,8 @@ class _LoginState extends State<Login> {
             userName: '${user.displayName}',
             state: false,
             images: user.photoURL!,
-            location: GeoPoint(_currentPosition.latitude, _currentPosition.longitude),
+            location:
+                GeoPoint(_currentPosition.latitude, _currentPosition.longitude),
             time: '',
             phone: user.phoneNumber ?? '',
             email: user.email ?? '',
@@ -620,7 +618,7 @@ class _LoginState extends State<Login> {
           ),
         );
       }
-      db.setStateLogin(stateuser: StateLoginModel(user: true,car: false));
+      
 
       // เอาไว้ป้องกันการเขียนทับข้อมูลที่มีอยู่เเล้ว
 
@@ -671,18 +669,20 @@ class _LoginState extends State<Login> {
           .get();
 
       print("user = $_user");
-      await Geolocator.getCurrentPosition(
-              desiredAccuracy: LocationAccuracy.high)
-          .then((Position position) async {
-        setState(() {
-          _currentPosition = position;
-          print('CURRENT POS: $_currentPosition');
-          print('end mapController');
-        });
-      }).catchError((e) {
-        print(e);
-      });
+      
+      db.setStateLogin(stateuser: StateLoginModel(user: true, car: false));
       if (userData1.data() == null) {
+        await Geolocator.getCurrentPosition(
+                desiredAccuracy: LocationAccuracy.high)
+            .then((Position position) async {
+          setState(() {
+            _currentPosition = position;
+            print('CURRENT POS: $_currentPosition');
+            print('end mapController');
+          });
+        }).catchError((e) {
+          print(e);
+        });
         print('login facebook user');
         await db.setUsers(
           //ใช้ setProduct เพื่อเพิ่มหรือแก้ไขเอกสารไปยังฐานข้อมูล Cloud Firestore
@@ -691,7 +691,8 @@ class _LoginState extends State<Login> {
             userName: '${_user.displayName}',
             state: false,
             images: _user.photoURL!,
-            location: GeoPoint(_currentPosition.latitude, _currentPosition.longitude),
+            location:
+                GeoPoint(_currentPosition.latitude, _currentPosition.longitude),
             time: '',
             phone: _user.phoneNumber ?? '',
             email: _user.email ?? '',
@@ -699,7 +700,7 @@ class _LoginState extends State<Login> {
           ),
         );
       }
-      db.setStateLogin(stateuser: StateLoginModel(user: true,car: false));
+      
     } catch (e) {
       print('ล็อกอินเข้าสู่ระบบผ่าน Facebook ผิดพลาด $e');
     }

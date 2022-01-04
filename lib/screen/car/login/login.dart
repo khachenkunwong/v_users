@@ -36,6 +36,8 @@ class _LoginCarState extends State<LoginCar> {
   bool _busy = false;
   // เอาใช้เพื่อ login ผ่าน google
   var user;
+  
+
   late Position _currentPosition;
 
   Future<Position> _determinePosition() async {
@@ -705,6 +707,7 @@ class _LoginCarState extends State<LoginCar> {
         print('login facebook car');
         await db.setCars(
           //ใช้ setProduct เพื่อเพิ่มหรือแก้ไขเอกสารไปยังฐานข้อมูล Cloud Firestore
+          
           cars: CarsModel(
             id: _user.uid,
             userName: '${_user.displayName}',
